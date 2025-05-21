@@ -1,27 +1,28 @@
-﻿#include <WinSock2.h>
+﻿// server.cpp
+
+#include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <iostream>
+#include "../IRCCore/loglib.h"
+#include "../IRCCore/socketutility.h"
+#include "../IRCCore/serverinfo.h"
 
 #pragma comment(lib, "ws2_32")
-
-void cleanup(SOCKET sock);
-
 int main()
 {
-	enum { CHAT_PORT_NUMBER = 5150 };
-	std::cout << "server program" << std::endl;
+	std::cout << "서버 프로그램 가동 . . ." << std::endl;
 
 	WSADATA wsa_data;
 	int init_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 
 	if (init_result != 0)
 	{
-		std::cerr << "error: " << init_result << "\tCan't Initialize winsock! Quiting" << std::endl;
+		std::cerr << WSA_INIT_FAILURE_LOG << init_result << std::endl;
 		return -1;
 	}
 	else
 	{
-		std::cout << "Succeded to Initialize winsock" << std::endl;
+		std::cout << WSA_INIT_SUCCESS_LOG << std::endl;
 	}
 	// --------------------------------------------- //
 	//	SOCKET WSAAPI socket(
@@ -33,53 +34,58 @@ int main()
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listen_sock == INVALID_SOCKET)
 	{
-		std::cerr << "socket function failed with error = " << WSAGetLastError() << std::endl;
+		std::cerr << get_wsa_error_log(FAIL_TO_CREATE_SOCKET_LOG) << std::endl;
 		cleanup(listen_sock);
 		return -1;
 	}
 	else
 	{
-		std::cout << "Succeded to socket function()" << std::endl;
+		std::cout << SUCCESS_TO_CREATE_SOCKET_LOG << std::endl;
 	}
 
-	sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(CHAT_PORT_NUMBER);
-	addr.sin_addr.s_addr = htonl(INADDR_ANY); // 모든 NIC의 IP 주소에 바인딩합니다
-	memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
+	sockaddr_in addr = make_sockaddr_in(AF_INET, SERVER_PORT, INADDR_ANY);
 	int bind_result = bind(listen_sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	if (bind_result == SOCKET_ERROR)
 	{
-		std::cerr << "bind function failed with error = " << WSAGetLastError() << std::endl;
+		std::cerr << get_wsa_error_log(FAIL_TO_BIND_SOCKET_LOG) << std::endl;
 		cleanup(listen_sock);
 		return -1;
 	}
 	else
 	{
-		std::cout << "Succeded to bind function()" << std::endl;
+		std::cout << SUCCESS_TO_BIND_SOCKET_LOG << std::endl;
 	}
 
 	int listen_result = listen(listen_sock, SOMAXCONN);
 	if (listen_result == SOCKET_ERROR)
 	{
-		std::cerr << "listen function failed with error = " << WSAGetLastError() << std::endl;
+		std::cerr << get_wsa_error_log(FAIL_TO_LISTEN_SOCKET_LOG) << std::endl;
 		cleanup(listen_sock);
 		return -1;
 	}
 	else
 	{
-		std::cout << "Succeded to listen function()" << std::endl;
+		std::cout << SUCCESS_TO_LISTEN_SOCKET_LOG << std::endl;
 	}
-	std::cout << "Running Server . . ." << std::endl;
+	std::cout << "서버 실행중 . . ." << std::endl;
+
+	sockaddr_in client_sock_addr;
+	int client_size = sizeof(sockaddr_in);
+	SOCKET client_sock = accept(listen_sock, reinterpret_cast<sockaddr*>(&client_sock_addr), &client_size);
+	if (client_sock == INVALID_SOCKET)
+	{
+		std::cerr << get_wsa_error_log(FAIL_TO_ACCEPT_CONNECT_LOG) << std::endl;
+		cleanup(listen_sock);
+		return -1;
+	}
+	else
+	{
+		std::cout << SUCCESS_TO_ACCEPT_CONNECT_LOG << std::endl;
+	}
 	// --------------------------------------------- //
 	cleanup(listen_sock);
-	std::cout << "WSACleanup, Quiting" << std::endl;
 
 	return 0;
 }
 
-void cleanup(SOCKET sock)
-{
-	closesocket(sock);
-	WSACleanup();
-}
+
