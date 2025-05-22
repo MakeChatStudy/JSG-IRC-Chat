@@ -2,9 +2,6 @@
 
 #include "loglib.h"
 
-const std::string PATH = "../IRCCore/";
-const std::string ERROR_PRES = "\terror #";
-
 const char* WSA_INIT_FAILURE_LOG = "WinSock2 라이브러리 초기화에 실패했습니다. with error = #";;
 const char* WSA_INIT_SUCCESS_LOG = "WinSock2 라이브러리 초기화 완료 . . .";
 const char* SUCCESS_TO_CREATE_SOCKET_LOG = "소켓 생성 성공 . . .";
@@ -22,16 +19,18 @@ const char* SUCCESS_TO_CONNECT = "서버 연결 성공 . . .";
 const char* FAIL_TO_CONNECT = "서버와의 연결에 실패했습니다.";
 
 const char* FAIL_TO_FIND_ERROR_FILE = "에러 파일을 찾는데 실패했습니다.";
+
 std::string get_wsa_error_log(const std::string& error_message)
 {
 	int error_code = WSAGetLastError();
 	std::string log = error_message + ERROR_PRES + std::to_string(error_code) + '\t';
-	std::string path = PATH + "/error_info/" + std::to_string(error_code) + ".txt";
+	std::string path = ERROR_INFO_PATH + std::to_string(error_code) + TXT;
 	std::ifstream file(path.c_str(), std::ios_base::in);
 	if (file.is_open())
 	{
-		char buffer[256];
-		file.getline(buffer, 256);
+		static const int ERROR_NAME_MAX_LEN = 64;
+		char buffer[ERROR_NAME_MAX_LEN];
+		file.getline(buffer, ERROR_NAME_MAX_LEN);
 		log += std::string(buffer);
 	}
 	else

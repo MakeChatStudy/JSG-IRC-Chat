@@ -1,4 +1,4 @@
-// socketutility.cpp
+ï»¿// socketutility.cpp
 
 #include "socketutility.h"
 
@@ -6,7 +6,7 @@ void cleanup(SOCKET sock)
 {
 	closesocket(sock);
 	WSACleanup();
-	std::cout << "WinSock2 ¶óÀÌºê·¯¸®¸¦ Á¾·áÇÕ´Ï´Ù." << std::endl;
+	std::cout << "WinSock2 ë¼ì´ë¸ŒëŸ¬ë¦¬ë¥¼ ì¢…ë£Œí•©ë‹ˆë‹¤." << std::endl;
 }
 
 sockaddr_in make_sockaddr_in(const int af, const unsigned short port, const unsigned long ip_address)
@@ -14,7 +14,7 @@ sockaddr_in make_sockaddr_in(const int af, const unsigned short port, const unsi
 	sockaddr_in addr;
 	addr.sin_family = af;
 	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(ip_address); // ¸ðµç NICÀÇ IP ÁÖ¼Ò¿¡ ¹ÙÀÎµù
+	addr.sin_addr.s_addr = htonl(ip_address); // ëª¨ë“  NICì˜ IP ì£¼ì†Œì— ë°”ì¸ë”©
 	memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
 	return addr;
 }

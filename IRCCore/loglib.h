@@ -6,10 +6,11 @@
 #include <string>
 #include <fstream>
 
-// common
-extern const std::string PATH;
-extern const std::string ERROR_PRES;
+const std::string ERROR_INFO_PATH = "../IRCCore/error_info/";
+const std::string ERROR_PRES = "\terror #";
+const std::string TXT = ".txt";
 
+// common
 extern const char* WSA_INIT_FAILURE_LOG;
 extern const char* WSA_INIT_SUCCESS_LOG;
 extern const char* SUCCESS_TO_CREATE_SOCKET_LOG;
