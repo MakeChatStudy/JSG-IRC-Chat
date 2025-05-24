@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <WinSock2.h>
-#include <thread>
 #include "loglib.h"
 
 /*
