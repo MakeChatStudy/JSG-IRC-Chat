@@ -6,9 +6,9 @@
 #include <string>
 #include <fstream>
 
-const std::string ERROR_INFO_PATH = "../IRCCore/error_info/";
-const std::string ERROR_PRES = "\terror #";
-const std::string TXT = ".txt";
+static const std::string ERROR_INFO_PATH = "../IRCCore/error_info/";
+static const std::string ERROR_PRES = "\terror #";
+static const std::string TXT = ".txt";
 
 // common
 extern const int   ABORTED;

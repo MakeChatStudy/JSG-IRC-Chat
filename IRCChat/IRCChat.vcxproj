@@ -132,6 +132,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp" />
+    <ClCompile Include="serverlib.cpp" />
+    <ClInclude Include="serverlib.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IRCCore\IRCCore.vcxproj">

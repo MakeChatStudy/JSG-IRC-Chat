@@ -29,8 +29,11 @@ const char* FAIL_TO_FIND_ERROR_FILE = "에러 파일을 찾는데 실패했습�
 
 std::string get_wsa_error_log(const std::string& error_message)
 {
+	// 출력할 로그를 담는 std::string 객체
 	std::string log;
 
+	// 에러 내용 error #error_code error_type 형식으로 출력
+	// ex. 메세지를 보내는 데 실패했습니다.        error #10038    WSAENOTSOCK
 	log = error_message + ERROR_PRES + std::to_string(WSAGetLastError()) + '\t';
 	log += read_error_message();
 

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <WinSock2.h>
+#include <thread>
 #include "loglib.h"
 
 /*
@@ -57,3 +58,29 @@ int send_string(SOCKET s, const std::string& message);
 ** 반환값	: 수신한 메세지를 담은 std::string
 */
 std::string recv_string(SOCKET s, int& recv_result);
+
+/*
+** 함수명	: chat_loop
+** 설명		: 서버와 클라이언트가 메시지를 송수신하는 메시지 루프 함수
+** 인자		: [in]	SOCKET connect_sock - 데이터를 송수신할 연결된 소켓
+** 반환값	: int - 연결 접속 종료 결과 코드
+*/
+int chat_loop(SOCKET connect_sock);
+
+/*
+** 함수명	: send_loop_thread
+** 설명		: 메시지 송신을 담당하는 쓰레드 함수
+** 인자		: [in]	SOCKET s - 데이터를 송신할 연결된 소켓
+**			: [in, out] bool& connect_state - 연결 상태를 확인하기 위한 플래그 
+** 반환값	: void
+*/
+void send_loop_thread(SOCKET s, bool& connect_state);
+
+/*
+** 함수명	: recv_loop_thread
+** 설명		: 메시지 수신을 담당하는 쓰레드 함수
+** 인자		: [in]	SOCKET s - 데이터를 수신할 연결된 소켓
+**			: [in, out] bool& connect_state - 연결 상태를 확인하기 위한 플래그
+** 반환값	: void
+*/
+void recv_loop_thread(SOCKET s, bool& connect_state);
