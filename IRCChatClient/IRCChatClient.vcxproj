@@ -129,6 +129,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="clientlib.cpp" />
+    <ClInclude Include="clientlib.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IRCCore\IRCCore.vcxproj">
