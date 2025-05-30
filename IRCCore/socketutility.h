@@ -6,7 +6,9 @@
 #include <WinSock2.h>
 #include <thread>
 #include "loglib.h"
+#include "IRCmessage.h"
 
+extern const int MAX_IRC_BUFF_SIZE;
 /*
 ** 함수명		: init_winsock_api
 ** 설명			: WinSock2 API 사용을 위해 라이브러리를 초기화 하고 로그를 출력
@@ -60,27 +62,10 @@ int send_string(SOCKET s, const std::string& message);
 std::string recv_string(SOCKET s, int& recv_result);
 
 /*
-** 함수명	: chat_loop
-** 설명		: 서버와 클라이언트가 메시지를 송수신하는 메시지 루프 함수
-** 인자		: [in]	SOCKET connect_sock - 데이터를 송수신할 연결된 소켓
-** 반환값	: int - 연결 접속 종료 결과 코드
+** 함수명	: is_equal_ignore_case
+** 설명		: a과 b을 대소문자를 구별하지 않고 비교하여 같으면 true를 반환
+** 인자		: [in]	const std::string& a - 비교할 문자열
+**			: [in]	const std::string& b - 비교할 문자열
+** 반환값	: bool - 같다면 true, 다르다면 false
 */
-int chat_loop(SOCKET connect_sock);
-
-/*
-** 함수명	: send_loop_thread
-** 설명		: 메시지 송신을 담당하는 쓰레드 함수
-** 인자		: [in]	SOCKET s - 데이터를 송신할 연결된 소켓
-**			: [in, out] bool& connect_state - 연결 상태를 확인하기 위한 플래그 
-** 반환값	: void
-*/
-void send_loop_thread(SOCKET s, bool& connect_state);
-
-/*
-** 함수명	: recv_loop_thread
-** 설명		: 메시지 수신을 담당하는 쓰레드 함수
-** 인자		: [in]	SOCKET s - 데이터를 수신할 연결된 소켓
-**			: [in, out] bool& connect_state - 연결 상태를 확인하기 위한 플래그
-** 반환값	: void
-*/
-void recv_loop_thread(SOCKET s, bool& connect_state);
+bool is_equal_ignore_case(const std::string& a, const std::string& b);

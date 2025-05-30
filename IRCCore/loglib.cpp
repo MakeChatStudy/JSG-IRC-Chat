@@ -5,7 +5,6 @@
 const int   ABORTED = -1;
 const char* WSA_INIT_FAILURE_LOG = "WinSock2 라이브러리 초기화에 실패했습니다. with error = #";;
 const char* WSA_INIT_SUCCESS_LOG = "WinSock2 라이브러리 초기화 완료 . . .";
-const char* WSA_CLEANUP_LOG = "WinSock2 라이브러리를 종료합니다.";
 const char* SUCCESS_TO_CREATE_SOCKET_LOG = "소켓 생성 성공 . . .";
 const char* FAIL_TO_CREATE_SOCKET_LOG = "소켓 생성에 실패했습니다.";
 const char* SUCCESS_TO_BIND_SOCKET_LOG = "소켓에 성공적으로 주소 정보를 바인딩 . . .";
@@ -19,7 +18,7 @@ const char* FAIL_TO_SEND_LOG = "메세지를 보내는 데 실패했습니다.";
 const char* SUCCESS_TO_RECV_LOG = "메세지를 받는 데 성공했습니다.";
 const char* FAIL_TO_RECV_LOG = "메세지를 받는 데 실패했습니다.";
 const char* CONNECTION_CLOSED_LOG = "연결이 종료되었습니다.";
-
+const char* INVALID_SOCKET_LOG = "유효하지 않은 소켓입니다.";
 const char* SUCCESS_TO_CONVERT_SERVER_ADDRESS = "서버 주소 변환 성공 . . .";
 const char* FAIL_TO_CONVERT_SERVER_ADDRESS = "서버 주소를 변환하는데 실패했습니다.";
 const char* SUCCESS_TO_CONNECT = "서버 연결 성공 . . .";

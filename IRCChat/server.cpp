@@ -2,8 +2,8 @@
 
 #include <WinSock2.h>
 #include <iostream>
-#include "../IRCCore/socketutility.h"
 #include "serverlib.h"
+#include "../IRCCore/socketutility.h"
 
 #pragma comment(lib, "ws2_32")
 
@@ -15,6 +15,8 @@ int main()
 	SOCKET listen_sock;
 	// 연결된 클라이언트와 통신하는 연결 소켓
 	SOCKET connect_sock;
+	// 클라이언트의 주소 정보를 담을 구조체
+	sockaddr_in client_sock_addr;
 
 	std::cout << "서버 프로그램 가동 . . ." << std::endl;
 
@@ -30,17 +32,17 @@ int main()
 		return ABORTED;
 	}
 	std::cout << "서버 실행중 . . ." << std::endl;
-
+	
 	// 클라이언트로 부터 받은 연결 요청을 승낙하고 연결된 소켓을 생성
-	connect_sock = accept_clients_connect(listen_sock);
+	connect_sock = accept_clients_connect(listen_sock, client_sock_addr);
 	if (connect_sock == INVALID_SOCKET)
 	{
 		return ABORTED;
-	}
+	}	
 
-	// 서버와 클라이언트가 서로 사용자 입력값을 주고 받는 주요 루프
-	chat_loop(connect_sock);
-
+	server_chat_loop(connect_sock);
+	
+	std::cout << "서버가 종료됩니다." << std::endl;
 	// WinSock2 API 라이브러리 종료
 	cleanup({ listen_sock, connect_sock });
 	return 0;
