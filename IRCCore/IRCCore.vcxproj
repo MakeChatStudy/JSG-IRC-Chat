@@ -19,12 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandInfo.cpp" />
+    <ClCompile Include="IRCMessage.cpp" />
     <ClCompile Include="loglib.cpp" />
     <ClCompile Include="serverinfo.h" />
+    <ClCompile Include="SocketOStream.cpp" />
     <ClCompile Include="socketutility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandInfo.h" />
+    <ClInclude Include="IRCmessage.h" />
     <ClInclude Include="loglib.h" />
+    <ClInclude Include="SocketOStream.h" />
     <ClInclude Include="socketutility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -55,7 +61,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>

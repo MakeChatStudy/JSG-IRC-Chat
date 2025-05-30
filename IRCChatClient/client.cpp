@@ -31,8 +31,9 @@ int main()
 		return ABORTED;
 	}
 
-	// 서버와 클라이언트가 서로 사용자 입력값을 주고 받는 주요 루프
-	chat_loop(connect_sock);
+	client_chat_loop(connect_sock);
+
+	std::cout << "클라이언트 프로그램을 종료합니다." << std::endl;
 
 	// WinSock2 API 라이브러리 종료
 	cleanup(connect_sock);

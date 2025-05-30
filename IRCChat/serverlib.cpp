@@ -1,15 +1,15 @@
-#include "serverlib.h"
+ï»¿#include "serverlib.h"
 
 SOCKET make_server_listen_socket(void)
 {
-	// ¼ö½Å ´ë±â »óÅÂ¿¡ ¹èÄ¡ÇÒ ¼­¹öÀÇ ¸®½¼ ¼ÒÄÏ
+	// ìˆ˜ì‹  ëŒ€ê¸° ìƒíƒœì— ë°°ì¹˜í•  ì„œë²„ì˜ ë¦¬ìŠ¨ ì†Œì¼“
 	SOCKET listen_sock;
-	// ¼ÒÄÏ¿¡ ¹ÙÀÎµùÇÒ ¼­¹öÀÇ ÁÖ¼Ò Á¤º¸
+	// ì†Œì¼“ì— ë°”ì¸ë”©í•  ì„œë²„ì˜ ì£¼ì†Œ ì •ë³´
 	sockaddr_in addr;
-	// ÇÔ¼öÀÇ °á°ú°ª, °¢ ÇÔ¼ö°¡ ¼º°øÀûÀ¸·Î ¼öÇàµÇ¾ú´ÂÁö¸¦ È®ÀÎÇÏ±â À§ÇÑ º¯¼ö
-	int result;
+	// í•¨ìˆ˜ì˜ ê²°ê³¼ê°’, ê° í•¨ìˆ˜ê°€ ì„±ê³µì ìœ¼ë¡œ ìˆ˜í–‰ë˜ì—ˆëŠ”ì§€ë¥¼ í™•ì¸í•˜ê¸° ìœ„í•œ ë³€ìˆ˜
+	int result = 0;
 
-	// ÇØ´ç ¼ÒÄÏÀº IPv4 Ã¼°è¸¦ µû¸£¸ç ¿¬°á ÁöÇâÇüÀÌ¸ç, TCP ÇÁ·ÎÅäÄİÀ» »ç¿ëÇÏ¿© µ¥ÀÌÅÍ¸¦ Àü¼ÛÇÏµµ·Ï ¼³Á¤
+	// í•´ë‹¹ ì†Œì¼“ì€ IPv4 ì²´ê³„ë¥¼ ë”°ë¥´ë©° ì—°ê²° ì§€í–¥í˜•ì´ë©°, TCP í”„ë¡œí† ì½œì„ ì‚¬ìš©í•˜ì—¬ ë°ì´í„°ë¥¼ ì „ì†¡í•˜ë„ë¡ ì„¤ì •
 	listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (listen_sock == INVALID_SOCKET)
 	{
@@ -22,10 +22,10 @@ SOCKET make_server_listen_socket(void)
 		std::cout << SUCCESS_TO_CREATE_SOCKET_LOG << std::endl;
 	}
 
-	// ¼­¹öÀÇ ÁÖ¼Ò Á¤º¸¸¦ IPv4, serverinfo.h¿¡ ÀúÀåµÈ ¼­¹öÀÇ Æ÷Æ® ¹øÈ£, ¸ğµç NIC·ÎºÎÅÍ ¿¬°áÀ» ¹Ş±â À§ÇÑ INADDR_ANY·Î ¼³Á¤
+	// ì„œë²„ì˜ ì£¼ì†Œ ì •ë³´ë¥¼ IPv4, serverinfo.hì— ì €ì¥ëœ ì„œë²„ì˜ í¬íŠ¸ ë²ˆí˜¸, ëª¨ë“  NICë¡œë¶€í„° ì—°ê²°ì„ ë°›ê¸° ìœ„í•œ INADDR_ANYë¡œ ì„¤ì •
 	addr = make_sockaddr_in(AF_INET, SERVER_PORT, INADDR_ANY);
 
-	// ¼ÒÄÏ¿¡ ¼­¹ö ÁÖ¼Ò Á¤º¸¸¦ ¹ÙÀÎµù
+	// ì†Œì¼“ì— ì„œë²„ ì£¼ì†Œ ì •ë³´ë¥¼ ë°”ì¸ë”©
 	result = bind(listen_sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	if (result == SOCKET_ERROR)
 	{
@@ -38,7 +38,7 @@ SOCKET make_server_listen_socket(void)
 		std::cout << SUCCESS_TO_BIND_SOCKET_LOG << std::endl;
 	}
 
-	// °¡¿ëÇÑ ÃÖ´ë Å©±â¸¦ listen ¼ÒÄÏ Å¥¿¡ ÁöÁ¤
+	// ê°€ìš©í•œ ìµœëŒ€ í¬ê¸°ë¥¼ listen ì†Œì¼“ íì— ì§€ì •
 	result = listen(listen_sock, SOMAXCONN);
 	if (result == SOCKET_ERROR)
 	{
@@ -53,18 +53,14 @@ SOCKET make_server_listen_socket(void)
 	return listen_sock;
 }
 
-SOCKET accept_clients_connect(SOCKET listen_sock)
+SOCKET accept_clients_connect(SOCKET listen_sock, sockaddr_in& client_sock_addr)
 {
-	// ¿¬°á ¿äÃ»À» ½Â³«ÇÏ°í Å¬¶óÀÌ¾ğÆ®¿Í ¿¬°áµÉ ¼ÒÄÏ
+	// ì—°ê²° ìš”ì²­ì„ ìŠ¹ë‚™í•˜ê³  í´ë¼ì´ì–¸íŠ¸ì™€ ì—°ê²°ë  ì†Œì¼“
 	SOCKET connect_sock;
-	// Å¬¶óÀÌ¾ğÆ®ÀÇ ÁÖ¼Ò Á¤º¸¸¦ ´ãÀ» ±¸Á¶Ã¼
-	sockaddr_in client_sock_addr;
-	// client_sock_addrÀÇ ±æÀÌ(byte)
-	int client_size;
+	// client_sock_addrì˜ ê¸¸ì´(byte)
+	int client_size = sizeof(sockaddr_in);
 
-	client_size = sizeof(sockaddr_in);
-
-	// Å¬¶óÀÌ¾ğÆ®ÀÇ ¿¬°á ¿äÃ» ½Â³«
+	// í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²° ìš”ì²­ ìŠ¹ë‚™
 	connect_sock = accept(listen_sock, reinterpret_cast<sockaddr*>(&client_sock_addr), &client_size);
 	if (connect_sock == INVALID_SOCKET)
 	{
@@ -78,4 +74,40 @@ SOCKET accept_clients_connect(SOCKET listen_sock)
 	}
 
 	return connect_sock;
+}
+
+void server_chat_loop(SOCKET connect_sock)
+{
+	// í´ë¼ì´ì–¸íŠ¸ë¡œ ë¶€í„° ìˆ˜ì‹ í•œ ë©”ì‹œì§€ë¥¼ ì €ì¥í•œ string
+	std::string message;
+	// ë©”ì‹œì§€ë¥¼ íŒŒì‹±í•˜ê³  ê° í•„ë“œë³„ë¡œ êµ¬ë¶„í•˜ê¸° ìœ„í•œ IRCMessage í´ë˜ìŠ¤
+	IRCMessage irc_message;
+	// connect_sockì„ í†µí•´ ë°ì´í„°ë¥¼ ê°„í¸í•˜ê²Œ ì „ì†¡í•˜ê¸° ìœ„í•œ SocketOStream í´ë˜ìŠ¤
+	SocketOStream sout(connect_sock);
+	// recvì˜ ì‹¤í–‰ ê²°ê³¼ë¥¼ ì €ì¥í•  ë³€ìˆ˜
+	int result = 0;
+
+	while (1)
+	{
+		message = recv_string(connect_sock, result);
+		if (result == SOCKET_ERROR)
+		{
+			std::cout << get_wsa_error_log(FAIL_TO_RECV_LOG) << std::endl;
+			std::cout << CONNECTION_CLOSED_LOG << std::endl;
+			break;
+		}
+
+		// messageë¥¼ IRCMessageë¡œ ë³€í™˜
+		irc_message = IRCMessage(message);
+		std::cout << irc_message << std::endl;
+
+		// connect_sockìœ¼ë¡œ irc_message ì „ì†¡
+		sout << irc_message;
+		if (sout == false)
+		{
+			std::cout << get_wsa_error_log(FAIL_TO_SEND_LOG) << std::endl;
+			std::cout << CONNECTION_CLOSED_LOG << std::endl;
+			break;
+		}
+	}
 }

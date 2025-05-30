@@ -22,6 +22,7 @@ extern const char* FAIL_TO_SEND_LOG;
 extern const char* SUCCESS_TO_RECV_LOG;
 extern const char* FAIL_TO_RECV_LOG;
 extern const char* CONNECTION_CLOSED_LOG;
+extern const char* INVALID_SOCKET_LOG;
 
 // server only
 extern const char* SUCCESS_TO_BIND_SOCKET_LOG;

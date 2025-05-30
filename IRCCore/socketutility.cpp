@@ -2,6 +2,8 @@
 
 #include "socketutility.h"
 
+const int MAX_IRC_BUFF_SIZE = 512;
+
 bool init_winsock_api(WSADATA* wsa_data)
 {
 	int init_result;
@@ -30,7 +32,6 @@ void cleanup(SOCKET sock)
 
 	// Winsock 2 DLL(Ws2_32.dll)의 사용을 종료
 	WSACleanup();
-	std::cout << WSA_CLEANUP_LOG << std::endl;
 }
 void cleanup(std::initializer_list<SOCKET> sock_list)
 {
@@ -43,7 +44,6 @@ void cleanup(std::initializer_list<SOCKET> sock_list)
 	}
 	// Winsock 2 DLL(Ws2_32.dll)의 사용을 종료
 	WSACleanup();
-	std::cout << WSA_CLEANUP_LOG << std::endl;
 }
 
 sockaddr_in make_sockaddr_in(const int af, const unsigned short port, const unsigned long ip_address/* = 0*/)
@@ -64,16 +64,23 @@ sockaddr_in make_sockaddr_in(const int af, const unsigned short port, const unsi
 
 int send_string(SOCKET s, const std::string& message)
 {
-	SOCKET sss = NULL;
-	return send(sss, message.c_str(), message.length() + 1, 0);
+	if (s == INVALID_SOCKET)
+	{
+		return INVALID_SOCKET;
+	}
+	/*else if (message.length() >= MAX_IRC_BUFF_SIZE)
+	{
+		std::cout << get_wsa_error_log(OVER_MAX_IRC_BUFF_LOG) << std::endl;
+		return 
+	}*/
+	return send(s, message.c_str(), message.length() + 1, 0);
 }
 
 std::string recv_string(SOCKET s, int& recv_result)
 {
-	static const int MAX_BUF_SIZE = 100;
-	char char_buf[MAX_BUF_SIZE];
+	char char_buf[MAX_IRC_BUFF_SIZE];
 
-	recv_result = recv(s, char_buf, MAX_BUF_SIZE, 0);
+	recv_result = recv(s, char_buf, MAX_IRC_BUFF_SIZE, 0);
 	if (recv_result <= 0)
 	{
 		return "";
@@ -82,88 +89,16 @@ std::string recv_string(SOCKET s, int& recv_result)
 	{
 		return std::string(char_buf);
 	}
+
 }
 
-int chat_loop(SOCKET connect_sock)
+bool is_equal_ignore_case(const std::string& a, const std::string& b)
 {
-	// send 와 recv 함수가 성공적으로 수행되었는지를 확인하는 결과값. thread 내부에서 데이터를 전달하거나 받기전에 확인
-	bool connect_state;
-	// 루프를 돌며 사용자 입력을 받아 소켓을 통해 데이터를 전송하는 쓰레드 변수
-	std::thread t_send;
-	// 루프를 돌며 소켓을 통해 데이터를 전달받아 콘솔에 출력하는 쓰레드 변수
-	std::thread t_recv;
+	if (a.length() != b.length()) return false;
 
-	connect_state = true;
-	std::cout << "전달할 메시지를 입력하시오(exit: \"quit\"): " << std::endl;
-
-	// send 용 쓰레드 생성
-	t_send = std::thread(send_loop_thread, connect_sock, std::ref(connect_state));
-	// recv 용 쓰레드 생성
-	t_recv = std::thread(recv_loop_thread, connect_sock, std::ref(connect_state));
-
-	// t_send 쓰레드가 실행을 마칠 때까지 메인 쓰레드를 중지
-	t_send.join();
-	// t_recv 쓰레드가 실행을 마칠 때까지 메인 쓰레드를 중지
-	t_recv.join();
-
-	return 0;
-}
-
-void send_loop_thread(SOCKET s, bool& connect_state)
-{
-	const static std::string QUIT_STRING = "quit";
-	std::string send_message;
-	int send_result;
-
-	// 루프를 돌며 입력받은 send_message를 소켓을 통해 전송
-	// quit을 입력하거나 연결 상태가 false 혹은 send 에 실패하면 루프를 탈출
-	while (1)
+	for (int i = 0; i < a.length(); i++)
 	{
-		std::getline(std::cin, send_message);
-		if (send_message == QUIT_STRING || connect_state == false)
-		{
-			break;
-		}
-		send_result = send_string(s, send_message);
-		if (send_result == SOCKET_ERROR)
-		{
-			std::cerr << get_wsa_error_log(FAIL_TO_SEND_LOG) << std::endl;
-			break;
-		}
+		if (tolower(a[i]) != tolower(b[i])) return false;
 	}
-	closesocket(s);
-	connect_state = false;
-	return;
-}
-
-void recv_loop_thread(SOCKET s, bool& connect_state)
-{
-	std::string recv_message;
-	int recv_result;
-	// 루프를 돌며 소켓을 돌며 전달받은 메시지를 콘솔에 출력
-	// 연결 상태가 false 이거나 recv 에 실패하면 루프를 탈출
-	while (1)
-	{
-		if (connect_state == false)
-		{
-			break;
-		}
-		recv_message = recv_string(s, recv_result);
-		if (recv_result <= 0)
-		{
-			if (recv_result < 0)
-			{
-				std::cerr << get_wsa_error_log(FAIL_TO_RECV_LOG) << std::endl;
-			}
-			else
-			{
-				std::cerr << CONNECTION_CLOSED_LOG << std::endl;
-			}
-			break;
-		}
-		std::cout << recv_message << std::endl;
-	}
-	closesocket(s);
-	connect_state = false;
-	return;
+	return true;
 }

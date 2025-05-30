@@ -24,12 +24,30 @@
     <ClCompile Include="serverinfo.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="IRCMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketOStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loglib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="socketutility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IRCmessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketOStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
