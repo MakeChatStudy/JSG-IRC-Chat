@@ -1,4 +1,4 @@
-// clientlib.cpp
+ï»¿// clientlib.cpp
 
 #include "clientlib.h"
 
@@ -6,10 +6,9 @@ SOCKET make_connect_socket(void)
 {
 	SOCKET connect_sock;
 	sockaddr_in server_sock_addr;
-	int conv_result;
-	int conn_result;
+	int result = 0;
 
-	// ÇØ´ç ¼ÒÄÏÀº IPv4 Ã¼°è¸¦ µû¸£¸ç ¿¬°á ÁöÇâÇüÀÌ¸ç, TCP ÇÁ·ÎÅäÄİÀ» »ç¿ëÇÏ¿© µ¥ÀÌÅÍ¸¦ Àü¼ÛÇÏµµ·Ï ¼³Á¤
+	// í•´ë‹¹ ì†Œì¼“ì€ IPv4 ì²´ê³„ë¥¼ ë”°ë¥´ë©° ì—°ê²° ì§€í–¥í˜•ì´ë©°, TCP í”„ë¡œí† ì½œì„ ì‚¬ìš©í•˜ì—¬ ë°ì´í„°ë¥¼ ì „ì†¡í•˜ë„ë¡ ì„¤ì •
 	connect_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (connect_sock == INVALID_SOCKET)
 	{
@@ -21,14 +20,14 @@ SOCKET make_connect_socket(void)
 	{
 		std::cout << SUCCESS_TO_CREATE_SOCKET_LOG << std::endl;
 	}
-	// ¿¬°áÇÒ ¼­¹öÀÇ ÁÖ¼Ò Á¤º¸¸¦ IPv4, serverinfo.h¿¡ ÀúÀåµÈ ¼­¹öÀÇ Æ÷Æ® ¹øÈ£·Î ¼³Á¤
+	// ì—°ê²°í•  ì„œë²„ì˜ ì£¼ì†Œ ì •ë³´ë¥¼ IPv4, serverinfo.hì— ì €ì¥ëœ ì„œë²„ì˜ í¬íŠ¸ ë²ˆí˜¸ë¡œ ì„¤ì •
 	server_sock_addr = make_sockaddr_in(AF_INET, SERVER_PORT);
 
-	// serverinfo.h¿¡ ÀúÀåµÈ SERVER_IP Á¤º¸¸¦ ³×Æ®¿öÅ© ¹ÙÀÌÆ® ¿À´õ·Î º¯È¯ÇÏ°í server_sock_addr¿¡ ÀúÀå
-	conv_result = inet_pton(AF_INET, SERVER_IP, &server_sock_addr.sin_addr);
-	if (conv_result != 1)
+	// serverinfo.hì— ì €ì¥ëœ SERVER_IP ì •ë³´ë¥¼ ë„¤íŠ¸ì›Œí¬ ë°”ì´íŠ¸ ì˜¤ë”ë¡œ ë³€í™˜í•˜ê³  server_sock_addrì— ì €ì¥
+	result = inet_pton(AF_INET, SERVER_IP, &server_sock_addr.sin_addr);
+	if (result != 1)
 	{
-		std::cerr << FAIL_TO_CONVERT_SERVER_ADDRESS << ERROR_PRES << conv_result << std::endl;
+		std::cerr << FAIL_TO_CONVERT_SERVER_ADDRESS << ERROR_PRES << result << std::endl;
 		cleanup(connect_sock);
 		return INVALID_SOCKET;
 	}
@@ -37,9 +36,9 @@ SOCKET make_connect_socket(void)
 		std::cout << SUCCESS_TO_CONVERT_SERVER_ADDRESS << std::endl;
 	}
 
-	// connect_sock°ú ¼­¹öÀÇ ÁÖ¼Ò Á¤º¸¸¦ ¹ÙÅÁÀ¸·Î ¿¬°á
-	conn_result = connect(connect_sock, reinterpret_cast<sockaddr*>(&server_sock_addr), sizeof(sockaddr_in));
-	if (conn_result == SOCKET_ERROR)
+	// connect_sockê³¼ ì„œë²„ì˜ ì£¼ì†Œ ì •ë³´ë¥¼ ë°”íƒ•ìœ¼ë¡œ ì—°ê²°
+	result = connect(connect_sock, reinterpret_cast<sockaddr*>(&server_sock_addr), sizeof(sockaddr_in));
+	if (result == SOCKET_ERROR)
 	{
 		std::cerr << get_wsa_error_log(FAIL_TO_CONNECT) << std::endl;
 		cleanup(connect_sock);
@@ -52,3 +51,117 @@ SOCKET make_connect_socket(void)
 	return connect_sock;
 }
 
+
+int client_chat_loop(SOCKET connect_sock)
+{
+	// send ì™€ recv í•¨ìˆ˜ê°€ ì„±ê³µì ìœ¼ë¡œ ìˆ˜í–‰ë˜ì—ˆëŠ”ì§€ë¥¼ í™•ì¸í•˜ëŠ” ê²°ê³¼ê°’. thread ë‚´ë¶€ì—ì„œ ë°ì´í„°ë¥¼ ì „ë‹¬í•˜ê±°ë‚˜ ë°›ê¸°ì „ì— í™•ì¸
+	std::atomic<bool> connect_state(true);
+	// ë£¨í”„ë¥¼ ëŒë©° ì‚¬ìš©ì ì…ë ¥ì„ ë°›ì•„ ì†Œì¼“ì„ í†µí•´ ë°ì´í„°ë¥¼ ì „ì†¡í•˜ëŠ” ì“°ë ˆë“œ ë³€ìˆ˜
+	std::thread t_send;
+	std::cout << "ì „ë‹¬í•  ë©”ì‹œì§€ë¥¼ ì…ë ¥í•˜ì‹œì˜¤(exit: \"quit\"): " << std::endl;
+
+	// send ìš© ì“°ë ˆë“œ ìƒì„±
+	t_send = std::thread(client_input_loop_thread, connect_sock, std::ref(connect_state));
+
+	client_recv_loop(connect_sock, connect_state);
+
+	// t_send ì“°ë ˆë“œê°€ ì‹¤í–‰ì„ ë§ˆì¹  ë•Œê¹Œì§€ ë©”ì¸ ì“°ë ˆë“œë¥¼ ì¤‘ì§€
+	t_send.join();
+
+	return 0;
+}
+
+void client_input_loop_thread(SOCKET connect_sock, std::atomic<bool>& connect_state)
+{
+	SocketOStream sout(connect_sock);
+	static std::string nick = "Anonymous";
+	std::string user_input;
+	int send_result = 0;
+	bool quit = false;
+
+	// ë£¨í”„ë¥¼ ëŒë©° ì…ë ¥ë°›ì€ send_messageë¥¼ ì†Œì¼“ì„ í†µí•´ ì „ì†¡
+	// quitì„ ì…ë ¥í•˜ê±°ë‚˜ ì—°ê²° ìƒíƒœê°€ false í˜¹ì€ send ì— ì‹¤íŒ¨í•˜ë©´ ë£¨í”„ë¥¼ íƒˆì¶œ
+	while (send_result != SOCKET_ERROR && connect_state.load())
+	{
+		std::getline(std::cin, user_input);
+		
+		if (process_command(connect_sock, user_input, nick, quit))
+		{
+			if (quit) break;
+		}
+		else
+		{
+			sout << "NICK:" << nick << ", TRAILING:" << user_input << SocketOStream::CRLF;
+			if (!sout) break;
+		}
+	}
+	connect_state.store(false);
+	closesocket(connect_sock);
+	return;
+}
+
+void client_recv_loop(SOCKET s, std::atomic<bool>& connect_state)
+{
+	std::string recv_message;
+	int recv_result = 0;
+	// ë£¨í”„ë¥¼ ëŒë©° ì†Œì¼“ì„ ëŒë©° ì „ë‹¬ë°›ì€ ë©”ì‹œì§€ë¥¼ ì½˜ì†”ì— ì¶œë ¥
+	// ì—°ê²° ìƒíƒœê°€ false ì´ê±°ë‚˜ recv ì— ì‹¤íŒ¨í•˜ë©´ ë£¨í”„ë¥¼ íƒˆì¶œ
+	while (connect_state.load())
+	{
+		recv_message = recv_string(s, recv_result);
+		if (connect_state.load() == false)
+		{
+			break;
+		}
+		if (recv_result <= 0)
+		{
+			if (recv_result < 0)
+			{
+				std::cerr << get_wsa_error_log(FAIL_TO_RECV_LOG) << std::endl;
+			}
+			std::cout << CONNECTION_CLOSED_LOG << std::endl;
+			break;
+		}
+		std::cout << IRCMessage(recv_message) << std::endl;
+	}
+	connect_state.store(false);
+	return;
+}
+
+void set_nick(SOCKET s, std::string& origin, const std::string& new_nick)
+{
+	if (new_nick.empty())
+	{
+		std::cout << "ë‹‰ë„¤ì„ì„ ì…ë ¥í•´ì£¼ì„¸ìš”. Usage: nick <MYNAME>/\n";
+		return ;
+	}
+	origin = new_nick;
+	return;
+}
+
+bool process_command(SOCKET connect_sock, const std::string& user_input, std::string& nick, bool& quit)
+{
+	std::string command;
+	std::string arg;
+	std::stringstream ss(user_input);
+
+	ss >> command;
+	if (is_equal_ignore_case(command, CommandInfo::NICK_STRING))
+	{
+		ss >> arg;
+		set_nick(connect_sock, nick, arg);
+	}
+	else if (is_equal_ignore_case(command, CommandInfo::QUIT_STRING))
+	{
+		quit = true;
+	}
+	else if (is_equal_ignore_case(command, CommandInfo::CLEAR_STRING))
+	{
+		system("cls");
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}

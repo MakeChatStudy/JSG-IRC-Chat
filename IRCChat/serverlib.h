@@ -1,4 +1,4 @@
-// clientlib.h
+ï»¿// clientlib.h
 
 #pragma once
 
@@ -8,19 +8,30 @@
 #include "../IRCCore/loglib.h"
 #include "../IRCCore/socketutility.h"
 #include "../IRCCore/serverinfo.h"
+#include "../IRCCore/IRCMessage.h"
+#include "../IRCCore/SocketOStream.h"
 
 /*
-** ÇÔ¼ö¸í		: make_server_listen_socket
-** ¼³¸í			: ¼ÒÄÏÀ» »ı¼ºÇÏ°í ¼­¹öÀÇ ÁÖ¼Ò¸¦ ¹ÙÀÎµù, ÇØ´ç ¼ÒÄÏÀ» ¼ö½Å ´ë±â »óÅÂ¿¡ ¹èÄ¡
-** ÀÎÀÚ			: void
-** ¹İÈ¯°ª		: ¼ö½Å ´ë±âÁßÀÎ ¼ÒÄÏ
+** í•¨ìˆ˜ëª…		: make_server_listen_socket
+** ì„¤ëª…			: ì†Œì¼“ì„ ìƒì„±í•˜ê³  ì„œë²„ì˜ ì£¼ì†Œë¥¼ ë°”ì¸ë”©, í•´ë‹¹ ì†Œì¼“ì„ ìˆ˜ì‹  ëŒ€ê¸° ìƒíƒœì— ë°°ì¹˜
+** ì¸ì			: void
+** ë°˜í™˜ê°’		: ìˆ˜ì‹  ëŒ€ê¸°ì¤‘ì¸ ì†Œì¼“
 */
 SOCKET make_server_listen_socket(void);
 
 /*
-** ÇÔ¼ö¸í		: accept_clients_connect
-** ¼³¸í			: ¸®½¼ ¼ÒÄÏÀ» ÅëÇØ ¹ŞÀº ¿¬°á ¿äÃ»À» ½Â³«ÇÏ°í Å¬¶óÀÌ¾ğÆ®¿Í ¿¬°áµÈ ¼ÒÄÏÀ» »ı¼º
-** ÀÎÀÚ			: [in] SOCKET listen_sock - ¼ö½Å ´ë±âÁßÀÎ ¼ÒÄÏ
-** ¹İÈ¯°ª		: Å¬¶óÀÌ¾ğÆ®¿Í ¿¬°áµÈ ¼ÒÄÏ
+** í•¨ìˆ˜ëª…		: accept_clients_connect
+** ì„¤ëª…			: ë¦¬ìŠ¨ ì†Œì¼“ì„ í†µí•´ ë°›ì€ ì—°ê²° ìš”ì²­ì„ ìŠ¹ë‚™í•˜ê³  í´ë¼ì´ì–¸íŠ¸ì™€ ì—°ê²°ëœ ì†Œì¼“ì„ ìƒì„±
+** ì¸ì			: [in] SOCKET listen_sock - ìˆ˜ì‹  ëŒ€ê¸°ì¤‘ì¸ ì„œë²„ ë¦¬ìŠ¨ ì†Œì¼“
+** ì¸ì			: [out] sockaddr_in& client_sock_addr - í´ë¼ì´ì–¸íŠ¸ì˜ ì£¼ì†Œ ì •ë³´ë¥¼ ì €ì¥í•˜ëŠ” êµ¬ì¡°ì²´
+** ë°˜í™˜ê°’		: í´ë¼ì´ì–¸íŠ¸ì™€ ì—°ê²°ëœ ì†Œì¼“
 */
-SOCKET accept_clients_connect(SOCKET listen_sock);
+SOCKET accept_clients_connect(SOCKET listen_sock, sockaddr_in& client_sock_addr);
+
+/*
+** í•¨ìˆ˜ëª…		: server_chat_loop
+** ì„¤ëª…			: ì—°ê²°ëœ í´ë¼ì´ì–¸íŠ¸ì˜ ë°ì´í„°ë¥¼ ìˆ˜ì‹ í•˜ê³ , ì½˜ì†”ì— ì¶œë ¥í•œ ë’¤, ê°™ì€ ë©”ì‹œì§€ë¥¼ í´ë¼ì´ì–¸íŠ¸ë¡œ ë°˜ë³µì ìœ¼ë¡œ ë³´ëƒ„
+** ì¸ì			: [in] SOCKET connect_sock - í´ë¼ì´ì–¸íŠ¸ì™€ ì—°ê²°ëœ ì†Œì¼“
+** ë°˜í™˜ê°’		: void
+*/
+void server_chat_loop(SOCKET connect_sock);
